@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EduBridge AI — Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@600;800&family=Noto+Sans+Telugu:wght@500&family=Noto+Sans+Devanagari:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ============ 1. DESIGN TOKENS ============ */
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+:root{
+  --bg:#04050d;--navy:#0a1030;--blue:#2f7bff;--purple:#8b6bff;--cyan:#22e6ff;--pink:#ff5fd2;
+  --text:#eef1ff;--muted:#8d97c4;--ok:#2cf5a6;--err:#ff5d7a;
+  --glass:rgba(16,20,48,.55);--line:rgba(140,160,255,.18);
+  --font:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;--display:'Sora','Space Grotesk',system-ui,sans-serif;
+  --r:22px;--ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ============ 2. BACKGROUND LAYERS ============ */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(120% 80% at 20% 0%,#0d1445 0%,var(--bg) 60%)}
+.bg .grid{position:absolute;inset:-50%;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;transform:perspective(600px) rotateX(62deg) translateY(-8%);mask-image:radial-gradient(closest-side,#000 20%,transparent 80%);opacity:.5;animation:gridmove 14s linear infinite}
+@keyframes gridmove{to{background-position:0 56px,56px 0}}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 18s ease-in-out infinite alternate}
+.o1{width:46vmax;height:46vmax;left:-12vmax;top:-14vmax;background:var(--purple)}
+.o2{width:40vmax;height:40vmax;right:-10vmax;bottom:-14vmax;background:var(--blue);animation-delay:-6s}
+.o3{width:26vmax;height:26vmax;left:40%;top:30%;background:var(--cyan);opacity:.22;animation-delay:-11s}
+@keyframes drift{to{transform:translate(6vmax,4vmax) scale(1.15)}}
+#fx{position:absolute;inset:0;width:100%;height:100%}
+.spot{position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(34,230,255,.13),transparent 60%);transition:opacity .4s}
+
+/* ============ 3. LAYOUT ============ */
+.shell{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:clamp(24px,5vw,80px);padding:clamp(20px,4vw,64px) clamp(20px,6vw,96px)}
+.brand{display:flex;flex-direction:column;gap:28px;animation:rise 1s var(--ease) both}
+.logo{display:flex;align-items:center;gap:14px;font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:.01em}
+.logo-mark{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--cyan));box-shadow:0 0 30px rgba(139,107,255,.6),inset 0 0 12px rgba(255,255,255,.35)}
+.logo-mark svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.logo small{display:block;font-family:var(--font);font-weight:400;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,6.2vw,5.6rem);line-height:.98;letter-spacing:-.02em;background:linear-gradient(100deg,#fff,var(--cyan),var(--purple),var(--pink),var(--cyan));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite}
+@keyframes shine{to{background-position:-300% 0}}
+.sub{max-width:46ch;color:var(--muted);font-size:1.12rem;line-height:1.6}
+.hero-row{display:flex;align-items:center;gap:clamp(20px,4vw,56px);flex-wrap:wrap}
+
+/* 3D-style sphere built from CSS only */
+.sphere{--s:min(250px,52vw);width:var(--s);height:var(--s);position:relative;flex:none;transform-style:preserve-3d;animation:float 7s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-14px)}}
+.core{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff 0,var(--cyan) 12%,var(--blue) 38%,var(--purple) 66%,#150a3d 100%);box-shadow:0 0 70px rgba(47,123,255,.7),0 0 140px rgba(139,107,255,.45),inset -22px -26px 50px rgba(0,0,30,.7);animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 100px rgba(34,230,255,.8),0 0 190px rgba(139,107,255,.55),inset -22px -26px 50px rgba(0,0,30,.7)}}
+.ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(34,230,255,.55);box-shadow:0 0 14px rgba(34,230,255,.4)}
+.r1{animation:spin3d 9s linear infinite}
+.r2{inset:-8%;border-color:rgba(139,107,255,.6);box-shadow:0 0 14px rgba(139,107,255,.5);animation:spin3d2 12s linear infinite}
+.ring::after{content:"";position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 14px 4px var(--cyan)}
+@keyframes spin3d{from{transform:rotateX(72deg) rotateZ(0)}to{transform:rotateX(72deg) rotateZ(360deg)}}
+@keyframes spin3d2{from{transform:rotateX(72deg) rotateY(38deg) rotateZ(360deg)}to{transform:rotateX(72deg) rotateY(38deg) rotateZ(0)}}
+
+.stats{display:grid;grid-template-columns:repeat(3,auto);gap:clamp(14px,2.4vw,32px)}
+.stat b{display:block;font-family:var(--display);font-size:2.3rem;font-weight:800}
+.stat span{color:var(--muted);font-size:.85rem}
+.chips{display:flex;flex-wrap:wrap;gap:12px}
+.chip{display:flex;gap:10px;align-items:center;padding:12px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);font-size:.92rem;transition:.3s var(--ease);cursor:default}
+.chip svg{color:var(--cyan)}
+.chip:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:0 10px 30px rgba(34,230,255,.18)}
+
+/* ============ 4. GLASS LOGIN CARD ============ */
+.panel{perspective:1200px;animation:rise 1s .15s var(--ease) both;display:flex;justify-content:center}
+@keyframes rise{from{opacity:0;transform:translateY(34px) scale(.98)}}
+.card{position:relative;width:min(100%,480px);padding:clamp(26px,4vw,44px);border-radius:28px;background:var(--glass);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 80px rgba(80,90,255,.18);transform-style:preserve-3d;transition:transform .25s var(--ease);will-change:transform}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),var(--cyan),var(--purple),var(--pink),transparent 55%,var(--cyan));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spinA 6s linear infinite;pointer-events:none}
+@keyframes spinA{to{--a:360deg}}
+.view{animation:viewin .5s var(--ease) both}
+.view.leave{animation:viewout .28s ease both}
+@keyframes viewin{from{opacity:0;transform:translateX(30px)}}
+@keyframes viewout{to{opacity:0;transform:translateX(-30px)}}
+h2{font-family:var(--display);font-size:2rem;margin-bottom:6px}
+.lead{color:var(--muted);margin-bottom:24px}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:7px}
+.input{position:relative;display:flex;align-items:center;border-radius:14px;background:rgba(5,8,28,.65);border:1px solid var(--line);transition:.3s var(--ease)}
+.input>svg:first-child{margin-left:14px;color:var(--muted);transition:.3s}
+.input input{flex:1;min-width:0;background:none;border:0;outline:0;padding:15px 12px;font-size:1rem}
+.input input::placeholder{color:#5a6392}
+.input:focus-within{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(34,230,255,.12),0 0 24px rgba(34,230,255,.2)}
+.input:focus-within>svg:first-child{color:var(--cyan);transform:scale(1.15) rotate(-6deg)}
+.field.ok .input{border-color:rgba(44,245,166,.6)}
+.field.err .input{border-color:var(--err);box-shadow:0 0 0 4px rgba(255,93,122,.12)}
+.tick{margin-right:12px;opacity:0;transform:scale(.4);transition:.3s var(--ease);color:var(--ok)}
+.field.ok .tick,.field.err .tick{opacity:1;transform:none}
+.field.err .tick{color:var(--err)}
+.eye{background:none;border:0;cursor:pointer;color:var(--muted);padding:8px 12px;border-radius:10px;transition:.2s;display:grid}
+.eye:hover{color:var(--cyan);transform:scale(1.12)}
+.msg{font-size:.8rem;color:var(--err);max-height:0;overflow:hidden;opacity:0;transition:.3s var(--ease)}
+.field.err .msg{max-height:40px;opacity:1;margin-top:6px}
+.meter{display:flex;gap:5px;margin-top:9px;align-items:center}
+.meter i{flex:1;height:4px;border-radius:4px;background:rgba(140,160,255,.15);transition:.4s}
+.meter em{font-style:normal;font-size:.75rem;color:var(--muted);min-width:52px;text-align:right}
+.meter[data-s="1"] i:nth-child(-n+1){background:var(--err)}
+.meter[data-s="2"] i:nth-child(-n+2){background:#ffb347}
+.meter[data-s="3"] i:nth-child(-n+3){background:var(--cyan)}
+.meter[data-s="4"] i:nth-child(-n+4){background:var(--ok);box-shadow:0 0 10px var(--ok)}
+
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:6px 0 22px;font-size:.9rem;flex-wrap:wrap}
+.check{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.check input{position:absolute;opacity:0}
+.box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line);display:grid;place-items:center;transition:.25s var(--ease);flex:none}
+.box svg{width:13px;height:13px;stroke:#04050d;stroke-width:3;fill:none;stroke-dasharray:20;stroke-dashoffset:20;transition:.3s .05s}
+.check input:checked+.box{background:linear-gradient(135deg,var(--cyan),var(--purple));border-color:transparent;box-shadow:0 0 16px rgba(34,230,255,.6);transform:scale(1.08)}
+.check input:checked+.box svg{stroke-dashoffset:0}
+.check input:focus-visible+.box{outline:2px solid var(--cyan);outline-offset:3px}
+.link{background:none;border:0;cursor:pointer;color:var(--cyan);position:relative;padding:2px 0}
+.link::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left;transition:.3s var(--ease)}
+.link:hover::after{transform:scaleX(1)}
+
+/* Buttons + ripple */
+.btn{position:relative;overflow:hidden;width:100%;border:0;cursor:pointer;padding:16px;border-radius:14px;font-weight:700;font-size:1.05rem;letter-spacing:.02em;background:linear-gradient(100deg,var(--blue),var(--purple),var(--cyan));background-size:200% 100%;color:#fff;box-shadow:0 10px 34px rgba(79,107,255,.5),0 0 0 1px rgba(255,255,255,.15) inset;transition:.35s var(--ease)}
+.btn:hover{background-position:100% 0;transform:translateY(-3px);box-shadow:0 16px 48px rgba(34,230,255,.45),0 0 0 1px rgba(255,255,255,.25) inset}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn .spin{display:none;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite;margin:0 auto}
+.btn.loading .lbl{display:none}.btn.loading .spin{display:block}.btn.loading{pointer-events:none;filter:saturate(.8)}
+@keyframes rot{to{transform:rotate(360deg)}}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(4);opacity:0}}
+.or{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:.8rem;margin:22px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.social{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sbtn{position:relative;overflow:hidden;display:flex;gap:10px;justify-content:center;align-items:center;padding:13px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);cursor:pointer;transition:.3s var(--ease)}
+.sbtn:hover{transform:translateY(-3px);border-color:var(--purple);background:rgba(139,107,255,.12);box-shadow:0 10px 26px rgba(139,107,255,.25)}
+.sbtn svg{width:20px;height:20px}
+.foot{text-align:center;margin-top:22px;color:var(--muted);font-size:.92rem}
+.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+
+/* Success overlay */
+.done{position:absolute;inset:0;border-radius:inherit;display:grid;place-content:center;justify-items:center;gap:14px;text-align:center;background:rgba(6,9,30,.92);opacity:0;pointer-events:none;transition:.5s var(--ease);padding:30px}
+.done.show{opacity:1;pointer-events:auto}
+.done svg{width:110px;height:110px;filter:drop-shadow(0 0 18px var(--ok))}
+.done circle,.done path{fill:none;stroke:var(--ok);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:300;stroke-dashoffset:300}
+.done.show circle{animation:draw 1s .1s forwards}.done.show path{animation:draw .6s .8s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done .btn{width:auto;padding:12px 26px}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;background:rgba(2,3,12,.7);backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:.35s}
+.modal.open{opacity:1;visibility:visible}
+.sheet{position:relative;width:min(100%,440px);padding:34px;border-radius:24px;background:#0c1036;border:1px solid var(--line);box-shadow:0 0 80px rgba(139,107,255,.3);transform:translateY(24px) scale(.95);transition:.4s var(--ease)}
+.modal.open .sheet{transform:none}
+.x{position:absolute;top:14px;right:14px;background:none;border:0;cursor:pointer;color:var(--muted);padding:8px;border-radius:10px;transition:.2s;display:grid}
+.x:hover{color:#fff;transform:rotate(90deg)}
+
+/* Toasts */
+#toasts{position:fixed;z-index:80;top:20px;right:20px;display:grid;gap:10px;width:min(360px,calc(100vw - 40px))}
+.toast{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:rgba(12,16,54,.92);backdrop-filter:blur(14px);border:1px solid var(--line);border-left:3px solid var(--cyan);box-shadow:0 14px 40px rgba(0,0,0,.5);font-size:.92rem;animation:tin .45s var(--ease)}
+.toast.success{border-left-color:var(--ok)}.toast.error{border-left-color:var(--err)}
+.toast.out{animation:tout .3s forwards}
+@keyframes tin{from{opacity:0;transform:translateX(40px)}}
+@keyframes tout{to{opacity:0;transform:translateX(40px)}}
+
+/* ---- Extra polish: rotating tagline, card glow, button shine, caps warning, confetti ---- */
+.rot{font-family:var(--display);font-weight:600;font-size:1.15rem;color:var(--cyan);min-height:1.7em;transition:.45s var(--ease);text-shadow:0 0 18px rgba(34,230,255,.5)}
+.rot.out{opacity:0;transform:translateY(10px);filter:blur(4px)}
+.glow{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(380px circle at var(--cx,50%) var(--cy,0%),rgba(139,107,255,.2),transparent 60%);opacity:0;transition:opacity .3s}
+.card:hover .glow{opacity:1}
+.btn::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-120%);transition:transform .8s var(--ease)}
+.btn:hover::before{transform:translateX(120%)}
+.core{transform:translate(var(--px,0),var(--py,0));transition:transform .25s var(--ease)}
+.caps{display:none;margin-top:6px;font-size:.78rem;color:#ffb347}.caps.on{display:block}
+.sbtn.loading{pointer-events:none;border-color:var(--cyan);box-shadow:0 0 24px rgba(34,230,255,.3)}
+.sbtn.loading svg{animation:rot .9s linear infinite}
+.confetti{position:fixed;z-index:90;width:8px;height:12px;border-radius:2px;pointer-events:none}
+.stat{transition:.3s var(--ease)}.stat:hover{transform:translateY(-4px)}.stat:hover b{text-shadow:0 0 24px var(--cyan)}
+
+/* ============ 5. RESPONSIVE ============ */
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr;padding-top:32px}
+  .brand{align-items:center;text-align:center}.hero-row{justify-content:center}.sub{margin-inline:auto}.chips,.stats{justify-content:center}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:520px){.chips{display:none}.social{grid-template-columns:1fr}.stat b{font-size:1.8rem}h1{font-size:2.4rem}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ---- Redesign additions ---- */
+h1{font-size:clamp(2.4rem,5vw,4.4rem);line-height:1.04;max-width:14ch}
+.sphere{--s:min(190px,40vw)}
+.hero-row .stats{flex-basis:100%}
+.demo{flex:1 1 280px;max-width:430px;display:grid;gap:10px;padding:16px;border-radius:20px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.b{padding:10px 14px;border-radius:16px;font-size:.92rem;line-height:1.45;max-width:88%}
+.b.me{justify-self:end;font-family:'Noto Sans Telugu','Noto Sans Devanagari',var(--font);font-weight:500;background:linear-gradient(100deg,var(--blue),var(--purple));border-bottom-right-radius:4px}
+.b.ai{color:var(--muted);background:rgba(255,255,255,.06);border:1px solid var(--line);border-bottom-left-radius:4px}
+.pd{display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:var(--cyan);animation:pulsed 1s ease-in-out infinite}
+@keyframes pulsed{50%{opacity:.3;transform:scale(.7)}}
+.match{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid rgba(44,245,166,.45);background:rgba(44,245,166,.08)}
+.match small{display:block;color:var(--muted);font-size:.76rem}
+.av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#04050d;background:linear-gradient(135deg,var(--cyan),var(--purple))}
+.d1{animation:d1 11s infinite}.d2{animation:d2 11s infinite}.d3{animation:d3 11s infinite}
+@keyframes d1{0%{opacity:0;transform:translateY(8px)}6%,90%{opacity:1;transform:none}98%,100%{opacity:0}}
+@keyframes d2{0%,14%{opacity:0;transform:translateY(8px)}20%,90%{opacity:1;transform:none}98%,100%{opacity:0}}
+@keyframes d3{0%,36%{opacity:0;transform:scale(.94)}42%,90%{opacity:1;transform:none}98%,100%{opacity:0}}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;margin-bottom:20px;border-radius:14px;background:rgba(5,8,28,.65);border:1px solid var(--line)}
+.seg button{position:relative;z-index:1;padding:10px;border:0;border-radius:10px;background:none;cursor:pointer;font-weight:600;color:var(--muted);transition:color .3s}
+.seg button.on{color:#fff}
+.pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;background:linear-gradient(100deg,var(--blue),var(--purple));box-shadow:0 6px 20px rgba(79,107,255,.5);transition:transform .4s var(--ease)}
+.seg[data-v="Tutor"] .pill{transform:translateX(100%)}
+@media (max-width:980px){.demo{max-width:100%}h1{max-width:none}}
+
+/* ---- Account chooser + misc ---- */
+[hidden]{display:none!important}
+.chooser-head{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;margin-bottom:16px}
+.chooser-head svg{width:34px;height:34px}
+.chooser-head .lead{margin:0}
+.list{display:grid;gap:4px;margin-bottom:10px;padding-block:8px;border-block:1px solid var(--line)}
+.acct{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:14px;border:1px solid transparent;background:none;cursor:pointer;text-align:left;transition:.25s var(--ease)}
+.acct:hover,.acct:focus-visible{background:rgba(139,107,255,.12);border-color:var(--line)}
+.acct small{display:block;color:var(--muted);font-size:.8rem}
+.acct .av{width:40px;height:40px}
+.acct.alt .av{background:none;border:1px dashed var(--muted);color:var(--muted)}
+.fine{color:var(--muted);font-size:.74rem;margin-top:14px;line-height:1.5;text-align:center}
+.done .link{font-size:.95rem}
+
+/* ---- Streamlit component additions ---- */
+.opt{margin:2px 0 16px;border:1px solid var(--line);border-radius:14px;padding:4px 14px 2px;background:rgba(5,8,28,.35)}
+.opt summary{cursor:pointer;padding:10px 0;color:var(--muted);font-size:.9rem;list-style:none}
+.opt summary::-webkit-details-marker{display:none}
+.opt summary::after{content:"+";float:right;color:var(--cyan)}.opt[open] summary::after{content:"–"}
+.opt .field{margin-bottom:12px}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cols3 .input input{padding:13px 10px;font-size:.92rem}
+.sbtn.off{opacity:.55}
+.goauth{display:block;margin-top:10px;text-align:center;color:var(--cyan)}
+@media (max-width:520px){.cols3{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+
+<!-- SVG icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 8 9 6 9-6"/></symbol>
+  <symbol id="lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+  <symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A9.6 9.6 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9M6.6 6.6A17 17 0 0 0 2 12s4 7 10 7a9.7 9.7 0 0 0 4.4-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="bad" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="match" viewBox="0 0 24 24"><circle cx="9" cy="9" r="5"/><path d="m21 21-7-7M7 9h4"/></symbol>
+  <symbol id="swap" viewBox="0 0 24 24"><path d="M4 8h14l-3-3M20 16H6l3 3"/></symbol>
+  <symbol id="notes" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/></symbol>
+</svg>
+
+<!-- Animated background -->
+<div class="bg" aria-hidden="true">
+  <div class="grid"></div><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <canvas id="fx"></canvas><div class="spot"></div>
+</div>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<main class="shell">
+  <!-- LEFT: branding -->
+  <section class="brand" aria-label="About the platform">
+    <div class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M3 17c4-9 14-9 18 0M3 17h18M8 17v-4M16 17v-4M12 17V9"/></svg></span>
+      <span>EduBridge AI<small>LEARN · MATCH · GROW</small></span>
+    </div>
+    <h1>Every doubt finds its tutor.</h1>
+    <p class="sub">Describe your real problem, get matched to the right tutor, trade skills with peers, and walk away with smart notes after every session.</p>
+    <div class="hero-row">
+      <div class="sphere" aria-hidden="true"><div class="ring r1"></div><div class="ring r2"></div><div class="core"></div></div>
+      <div class="demo" aria-hidden="true">
+        <div class="b me d1">Quadratic equations నాకు అర్థం కావడం లేదు</div>
+        <div class="b ai d2"><span class="pd"></span>Finding a Telugu-speaking maths tutor…</div>
+        <div class="match d3"><span class="av">AR</span><div><b>Ananya R. is free now</b><small>Algebra, Telugu + English, 4.9 rating</small></div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b data-count="10">0</b><span>subjects covered</span></div>
+        <div class="stat"><b data-count="8">0</b><span>languages</span></div>
+        <div class="stat"><b data-count="24" data-suffix="/7">0</b><span>AI doubt help</span></div>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="chip"><svg class="i"><use href="#match"/></svg>Tutor matching</div>
+      <div class="chip"><svg class="i"><use href="#swap"/></svg>Skill swap</div>
+      <div class="chip"><svg class="i"><use href="#notes"/></svg>Smart notes</div>
+    </div>
+  </section>
+
+  <!-- RIGHT: login / register card -->
+  <section class="panel">
+    <div class="card" id="card">
+      <div class="glow" aria-hidden="true"></div>
+
+      <!-- LOGIN VIEW -->
+      <div class="view" id="loginView">
+        <h2>Welcome Back</h2>
+        <p class="lead">Sign in to continue your journey.</p>
+        <div class="seg" data-v="Student"><span class="pill"></span><button type="button" class="on" data-role="Student">I'm a student</button><button type="button" data-role="Tutor">I'm a tutor</button></div>
+        <form id="loginForm" novalidate>
+          <div class="field" data-rule="identity">
+            <label for="lid">Email or mobile number</label>
+            <div class="input"><svg class="i"><use href="#user"/></svg>
+              <input id="lid" name="id" autocomplete="username" placeholder="you@example.com or +91 98765 43210">
+              <svg class="i tick"><use href="#ok"/></svg></div>
+            <div class="msg"></div>
+          </div>
+          <div class="field" data-rule="loginpw">
+            <label for="lpw">Password</label>
+            <div class="input"><svg class="i"><use href="#lock"/></svg>
+              <input id="lpw" type="password" autocomplete="current-password" placeholder="Your password">
+              <button type="button" class="eye" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></div>
+            <div class="msg"></div>
+          </div>
+          <div class="row">
+            <label class="check"><input type="checkbox" id="remember"><span class="box"><svg viewBox="0 0 16 16"><path d="m3 8.5 3.2 3L13 4.5"/></svg></span>Remember me</label>
+            <button type="button" class="link" data-open="forgot">Forgot password?</button>
+          </div>
+          <button class="btn" type="submit"><span class="lbl">Sign In</span><span class="spin"></span></button>
+        </form>
+        <div class="or"><span>or continue with</span></div>
+        <div class="social">
+          <button type="button" class="sbtn" data-provider="google" aria-label="Continue with Google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.4 14.6 2.4 12 2.4 6.7 2.4 2.4 6.7 2.4 12s4.3 9.6 9.6 9.6c5.5 0 9.2-3.9 9.2-9.4 0-.6-.1-1.1-.2-1.6H12z"/></svg><span>Google</span></button>
+          <button type="button" class="sbtn" data-provider="github" aria-label="Continue with GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg><span>GitHub</span></button>
+        </div>
+        <p class="foot">New here? <button type="button" class="link" data-view="register">Create account</button></p>
+      </div>
+
+      <!-- REGISTER VIEW -->
+      <div class="view" id="registerView" hidden>
+        <h2>Create account</h2>
+        <p class="lead">Join in under a minute.</p>
+        <div class="seg" data-v="Student"><span class="pill"></span><button type="button" class="on" data-role="Student">I'm a student</button><button type="button" data-role="Tutor">I'm a tutor</button></div>
+        <form id="regForm" novalidate>
+          <div class="field" data-rule="name">
+            <label for="rn">Full name</label>
+            <div class="input"><svg class="i"><use href="#user"/></svg><input id="rn" autocomplete="name" placeholder="Your name"><svg class="i tick"><use href="#ok"/></svg></div><div class="msg"></div>
+          </div>
+          <div class="field" data-rule="email">
+            <label for="re">Email</label>
+            <div class="input"><svg class="i"><use href="#mail"/></svg><input id="re" type="email" autocomplete="email" placeholder="you@example.com"><svg class="i tick"><use href="#ok"/></svg></div><div class="msg"></div>
+          </div>
+          <div class="field" data-rule="newpw">
+            <label for="rp">Password</label>
+            <div class="input"><svg class="i"><use href="#lock"/></svg><input id="rp" type="password" autocomplete="new-password" placeholder="8+ characters"><button type="button" class="eye" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></div><div class="msg"></div>
+            <div class="meter" data-s="0" aria-hidden="true"><i></i><i></i><i></i><i></i><em></em></div>
+          </div>
+          <div class="field" data-rule="confirm">
+            <label for="rc">Confirm password</label>
+            <div class="input"><svg class="i"><use href="#lock"/></svg><input id="rc" type="password" autocomplete="new-password" placeholder="Repeat password"><svg class="i tick"><use href="#ok"/></svg></div><div class="msg"></div>
+          </div>
+          <details class="opt">
+            <summary>Profile details (optional)</summary>
+            <div class="field"><label for="rsk">Skills you can teach</label><div class="input"><svg class="i"><use href="#notes"/></svg><input id="rsk" maxlength="300" placeholder="Python, Excel, UI Design"></div></div>
+            <div class="field"><label for="rwn">Skills you want to learn</label><div class="input"><svg class="i"><use href="#notes"/></svg><input id="rwn" maxlength="300" placeholder="SQL, Statistics"></div></div>
+            <div class="cols3">
+              <div class="field"><label for="rci">City</label><div class="input"><input id="rci" maxlength="80" autocomplete="address-level2"></div></div>
+              <div class="field"><label for="rst">State</label><div class="input"><input id="rst" maxlength="80" autocomplete="address-level1"></div></div>
+              <div class="field"><label for="rco">Country</label><div class="input"><input id="rco" maxlength="80" value="India" autocomplete="country-name"></div></div>
+            </div>
+          </details>
+          <div class="field" data-rule="terms">
+            <label class="check"><input type="checkbox" id="rt"><span class="box"><svg viewBox="0 0 16 16"><path d="m3 8.5 3.2 3L13 4.5"/></svg></span>I agree to the terms of use</label><div class="msg"></div>
+          </div>
+          <button class="btn" type="submit"><span class="lbl">Create account</span><span class="spin"></span></button>
+        </form>
+        <div class="or"><span>or continue with</span></div>
+        <div class="social">
+          <button type="button" class="sbtn" data-provider="google" aria-label="Continue with Google"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.4 14.6 2.4 12 2.4 6.7 2.4 2.4 6.7 2.4 12s4.3 9.6 9.6 9.6c5.5 0 9.2-3.9 9.2-9.4 0-.6-.1-1.1-.2-1.6H12z"/></svg><span>Google</span></button>
+          <button type="button" class="sbtn" data-provider="github" aria-label="Continue with GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg><span>GitHub</span></button>
+        </div>
+        <p class="foot">Already have an account? <button type="button" class="link" data-view="login">Sign in</button></p>
+      </div>
+
+      <!-- SUCCESS OVERLAY -->
+      <div class="done" id="done" role="alertdialog" aria-labelledby="doneT">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="48"/><path d="m38 62 16 16 30-34"/></svg>
+        <h2 id="doneT">Welcome</h2>
+        <p class="lead" style="margin:0" id="doneMsg">Opening your workspace…</p>
+        <button class="btn" id="goNow" type="button"><span class="lbl">Continue</span></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FORGOT PASSWORD MODAL (asks the server to email a single-use link) -->
+<div class="modal" id="forgot" role="dialog" aria-modal="true" aria-labelledby="fT">
+  <div class="sheet">
+    <button type="button" class="x" data-close aria-label="Close"><svg class="i"><use href="#close"/></svg></button>
+    <h2 id="fT" style="font-size:1.6rem">Reset password</h2>
+    <p class="lead">Enter your email and we'll send a reset link.</p>
+    <form id="forgotForm" novalidate>
+      <div class="field" data-rule="email">
+        <label for="fe">Email</label>
+        <div class="input"><svg class="i"><use href="#mail"/></svg><input id="fe" type="email" autocomplete="email" placeholder="you@example.com"><svg class="i tick"><use href="#ok"/></svg></div><div class="msg"></div>
+      </div>
+      <button class="btn" type="submit"><span class="lbl">Send reset link</span><span class="spin"></span></button>
+    </form>
+  </div>
+</div>
+
+<!-- CHOOSE NEW PASSWORD (opened when the visitor arrives from the emailed link; the token stays on the server) -->
+<div class="modal" id="reset" role="dialog" aria-modal="true" aria-labelledby="rT">
+  <div class="sheet">
+    <button type="button" class="x" data-close aria-label="Close"><svg class="i"><use href="#close"/></svg></button>
+    <h2 id="rT" style="font-size:1.6rem">Choose a new password</h2>
+    <p class="lead">Your reset link is valid. Pick a strong password.</p>
+    <form id="resetForm" novalidate>
+      <div class="field" data-rule="newpw">
+        <label for="np">New password</label>
+        <div class="input"><svg class="i"><use href="#lock"/></svg><input id="np" type="password" autocomplete="new-password" placeholder="8+ characters"><button type="button" class="eye" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></div><div class="msg"></div>
+        <div class="meter" data-s="0" aria-hidden="true"><i></i><i></i><i></i><i></i><em></em></div>
+      </div>
+      <div class="field" data-rule="confirm">
+        <label for="nc">Confirm password</label>
+        <div class="input"><svg class="i"><use href="#lock"/></svg><input id="nc" type="password" autocomplete="new-password" placeholder="Repeat password"><svg class="i tick"><use href="#ok"/></svg></div><div class="msg"></div>
+      </div>
+      <button class="btn" type="submit"><span class="lbl">Update password</span><span class="spin"></span></button>
+    </form>
+  </div>
+</div>
+
+<!-- LINK ACCOUNT (provider email matches an existing password account: prove ownership with its password) -->
+<div class="modal" id="link" role="dialog" aria-modal="true" aria-labelledby="lT">
+  <div class="sheet">
+    <button type="button" class="x" data-close aria-label="Close"><svg class="i"><use href="#close"/></svg></button>
+    <h2 id="lT" style="font-size:1.5rem">Link your account</h2>
+    <p class="lead" id="linkMsg">An EduBridge account already exists for this email. Enter its password to link it.</p>
+    <form id="linkForm" novalidate>
+      <div class="field" data-rule="loginpw">
+        <label for="lkp">EduBridge password</label>
+        <div class="input"><svg class="i"><use href="#lock"/></svg><input id="lkp" type="password" autocomplete="current-password" placeholder="Your existing password"><button type="button" class="eye" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></div><div class="msg"></div>
+      </div>
+      <button class="btn" type="submit"><span class="lbl">Link and sign in</span><span class="spin"></span></button>
+    </form>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   EduBridge AI sign-in screen: runs inside a Streamlit custom component.
+
+   This file is UI only. It validates for convenience and sends every action
+   (login, register, social start, reset...) to the Python backend through the
+   Streamlit component bridge. The server does ALL real checks (passwords,
+   roles, OAuth, tokens, sessions). Nothing here stores accounts, hashes
+   passwords or decides that anyone is signed in.
+   ===================================================================== */
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const getRole = () => $('.seg').dataset.v;
+const rand = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
+
+/* ---------- Streamlit bridge (component protocol v1, no build step) ---------- */
+function showFallback() {
+  if (document.getElementById('ebFallback')) return;
+  const b = document.createElement('div');
+  b.id = 'ebFallback';
+  b.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99999;background:#141e34;color:#edf3ff;border:1px solid #7c6cff;border-radius:12px;padding:12px 16px;font:500 14px system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);display:flex;gap:12px;align-items:center';
+  const a = document.createElement('a');
+  a.textContent = 'Use simple sign-in';
+  a.href = '#';
+  a.style.cssText = 'background:#7c6cff;color:#fff;border-radius:8px;padding:8px 12px;text-decoration:none;font-weight:700';
+  a.onclick = e => { e.preventDefault(); try { const u = new URL(parent.location.href); u.searchParams.set('simple', '1'); parent.location.href = u.toString(); } catch (err) { try { parent.postMessage({ isStreamlitMessage: true, type: 'streamlit:setComponentValue', value: { id: rand(8), action: 'simple' }, dataType: 'json' }, '*'); } catch (e2) {} } };
+  b.append('Having trouble? ', a);
+  document.body.appendChild(b);
+}
+const Bridge = (() => {
+  const pending = new Map(), orphaned = new Set();
+  const inflight = {
+    get() { try { return JSON.parse(sessionStorage.getItem('eb_inflight') || 'null'); } catch { return null; } },
+    set(id, action) { try { sessionStorage.setItem('eb_inflight', JSON.stringify({ id, action })); } catch {} },
+    clear(id) { try { const f = JSON.parse(sessionStorage.getItem('eb_inflight') || 'null'); if (!f || f.id === id) sessionStorage.removeItem('eb_inflight'); } catch {} }
+  };
+  const post = (type, extra) => parent.postMessage(Object.assign({ isStreamlitMessage: true, type }, extra), '*');
+  const setValue = (action, payload) => {
+    const id = rand(8);
+    post('streamlit:setComponentValue', { value: Object.assign({ id, action }, payload), dataType: 'json' });
+    return id;
+  };
+  return {
+    init(onArgs) {
+      addEventListener('message', e => {
+        if (e.source !== parent) return;
+        const d = e.data || {};
+        if (d.type !== 'streamlit:render') return;
+        const a = d.args || {}, r = a.result;
+        if (r && r.id && pending.has(r.id)) { pending.get(r.id)(r); pending.delete(r.id); inflight.clear(r.id); }
+        else if (r && r.id) {
+          const f = inflight.get();
+          if (f && f.id === r.id && !orphaned.has(r.id)) { orphaned.add(r.id); inflight.clear(r.id); setTimeout(() => applyOrphan(f.action, r), 0); }
+        }
+        onArgs(a);
+      });
+      post('streamlit:componentReady', { apiVersion: 1 });
+      post('streamlit:setFrameHeight', { height: 820 });
+    },
+    send(action, payload = {}) { setValue(action, payload); },
+    call(action, payload = {}) {
+      return new Promise(resolve => {
+        const id = setValue(action, payload);
+        inflight.set(id, action);
+        const t = setTimeout(() => { pending.delete(id); inflight.clear(id); showFallback(); resolve({ ok: false, error: 'The server did not respond. Please try again, or use the simple sign-in.' }); }, 12000);
+        pending.set(id, r => { clearTimeout(t); resolve(r); });
+      });
+    }
+  };
+})();
+
+/* ---------- Cookies (the server decides what they mean) ---------- */
+const secure = location.protocol === 'https:' ? '; Secure' : '';
+const setCookie = (n, v, maxAge, same = 'Strict') => { document.cookie = `${n}=${encodeURIComponent(v)}; Path=/; SameSite=${same}${maxAge ? '; Max-Age=' + maxAge : ''}${secure}`; };
+const delCookie = n => { document.cookie = `${n}=; Path=/; Max-Age=0; SameSite=Lax${secure}`; };
+
+/* ---------- Safe localStorage wrapper ---------- */
+const store = {
+  get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+  del: k => { try { localStorage.removeItem(k); } catch {} }
+};
+
+/* ---------- Toasts ---------- */
+const Toast = {
+  show(msg, type = 'info') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.innerHTML = '<svg class="i" style="flex:none;color:' + (type === 'error' ? 'var(--err)' : type === 'success' ? 'var(--ok)' : 'var(--cyan)') + '"><use href="#' + (type === 'error' ? 'bad' : 'ok') + '"/></svg><span></span>';
+    t.lastChild.textContent = msg;
+    $('#toasts').appendChild(t);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 4200);
+  }
+};
+
+/* ---------- Validation rules (convenience only; the server re-checks everything) ---------- */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE = /^\+?[\d\s().-]{8,20}$/;
+const rules = {
+  identity: v => { v = v.trim(); const d = v.replace(/\D/g, '').length; return !v ? 'Enter your email or mobile number.' : (EMAIL.test(v) || (PHONE.test(v) && d >= 8 && d <= 15)) ? '' : 'Enter a valid email address or mobile number.'; },
+  loginpw: v => v ? '' : 'Enter your password.',
+  name: v => v.trim().length >= 2 ? '' : 'Enter your full name.',
+  email: v => !v.trim() ? 'Enter your email address.' : EMAIL.test(v) ? '' : 'That email address looks incomplete.',
+  newpw: v => v.length < 8 ? 'Use at least 8 characters.' : strength(v).score < 3 ? 'Mix upper and lower case letters with a number or symbol.' : '',
+  confirm: (v, form) => v && v === $('[data-rule="newpw"] input', form).value ? '' : 'Passwords do not match.',
+  terms: (v, form, el) => $('input', el).checked ? '' : 'Accept the terms to continue.'
+};
+
+/* ---------- Password strength (0-4) ---------- */
+function strength(pw) {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) s++;
+  if (/\d/.test(pw)) s++;
+  if (/[^\w\s]/.test(pw) || pw.length >= 14) s++;
+  return { score: pw ? Math.max(1, s) : 0, label: ['', 'Weak', 'Fair', 'Good', 'Strong'][pw ? Math.max(1, s) : 0] };
+}
+
+/* ---------- Field helpers ---------- */
+function setState(field, error, show = true) {
+  const input = $('input', field);
+  const touched = input.type === 'checkbox' ? true : input.value !== '';
+  field.classList.toggle('err', show && !!error);
+  field.classList.toggle('ok', show && !error && touched && input.type !== 'checkbox');
+  $('.msg', field).textContent = show ? error : '';
+  const tick = $('.tick use', field);
+  if (tick) tick.setAttribute('href', error ? '#bad' : '#ok');
+}
+function check(field, form, show = true) {
+  const input = $('input', field);
+  const err = rules[field.dataset.rule](input.value, form, field);
+  setState(field, err, show);
+  return !err;
+}
+function validateForm(form) {
+  let first = null;
+  const ok = $$('.field[data-rule]', form).map(f => {
+    const good = check(f, form);
+    if (!good && !first) first = $('input', f);
+    return good;
+  }).every(Boolean);
+  if (!ok) { first && first.focus(); shake(form.closest('.card') || form); }
+  return ok;
+}
+function shake(el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+
+/* Real-time validation + strength meters */
+$$('form').forEach(form => {
+  $$('.field[data-rule]', form).forEach(f => {
+    const input = $('input', f);
+    // Validate live once the user has typed; checkboxes validate on change.
+    input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', () => {
+      const live = input.type === 'checkbox' || input.value !== '' || f.classList.contains('err') || f.classList.contains('ok');
+      if (live) check(f, form);
+      if (f.dataset.rule === 'newpw') { const c = $('[data-rule="confirm"]', form); if ($('input', c).value) check(c, form); }
+    });
+    input.addEventListener('blur', () => { if (input.value && input.type !== 'checkbox') check(f, form); });
+    const meter = $('.meter', f);
+    if (meter) input.addEventListener('input', () => {
+      const s = strength(input.value);
+      meter.dataset.s = s.score; $('em', meter).textContent = s.label;
+    });
+  });
+});
+
+/* Show/hide password */
+$$('.eye').forEach(btn => btn.addEventListener('click', () => {
+  const input = $('input', btn.parentElement), show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  $('use', btn).setAttribute('href', show ? '#eyeoff' : '#eye');
+  btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  input.focus();
+}));
+
+/* ---------- Button loading helper ---------- */
+async function withLoading(btn, fn) {
+  btn.classList.add('loading'); btn.disabled = true;
+  try { return await fn(); } finally { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+/* ---------- Confetti burst ---------- */
+function confetti(x, y) {
+  if (reduce) return;
+  const cols = ['#22e6ff', '#8b6bff', '#2f7bff', '#ff5fd2', '#2cf5a6'];
+  for (let i = 0; i < 44; i++) {
+    const c = document.createElement('i'); c.className = 'confetti';
+    c.style.left = x + 'px'; c.style.top = y + 'px'; c.style.background = cols[i % 5];
+    document.body.appendChild(c);
+    const a = Math.random() * Math.PI * 2, d = 120 + Math.random() * 240;
+    c.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d + 160}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }],
+      { duration: 1100 + Math.random() * 700, easing: 'cubic-bezier(.1,.7,.3,1)' }).onfinish = () => c.remove();
+  }
+}
+/* ---------- Server responses -> form state ---------- */
+const FIELD = { identity: 'identity', name: 'name', email: 'email', confirm: 'confirm', terms: 'terms' };
+function showErr(form, res) {
+  shake($('#card'));
+  const rule = res.field === 'password' ? ($('[data-rule="newpw"]', form) ? 'newpw' : 'loginpw') : FIELD[res.field];
+  const f = rule && $('[data-rule="' + rule + '"]', form);
+  if (f) setState(f, res.error);
+  Toast.show(res.error || 'Something went wrong. Please try again.', 'error');
+}
+const clearForm = f => { f.reset(); $$('.field', f).forEach(x => { x.classList.remove('ok', 'err'); const m = $('.msg', x); m && (m.textContent = ''); }); $$('.meter', f).forEach(m => { m.dataset.s = 0; $('em', m).textContent = ''; }); };
+
+/* ---------- Signed in (the SERVER already created the session) ---------- */
+let proceeding = false;
+function succeed(res) {
+  if (res.cookie) setCookie('eb_rt', res.cookie.token, res.cookie.persistent ? 30 * 86400 : 0);
+  const first = (res.user.name || res.user.email || '').split(/[\s@]/)[0];
+  $('#doneT').textContent = (res.created ? 'Welcome, ' : 'Welcome back, ') + first;
+  $('#doneMsg').textContent = 'Signed in as ' + (res.user.email || res.user.name) + '. Opening your ' + res.user.role + ' workspace…';
+  Modal.closeAll();
+  $('#done').classList.add('show');
+  const r = $('#card').getBoundingClientRect(); confetti(r.left + r.width / 2, r.top + r.height / 2);
+  Toast.show('Signed in successfully.', 'success');
+  const go = () => { if (proceeding) return; proceeding = true; Bridge.send('continue'); };
+  $('#goNow').onclick = go; setTimeout(go, 1500); $('#goNow').focus();
+}
+
+function applyOrphan(action, res) {
+  const forms = { login: loginForm, register: regForm, link_confirm: linkForm, reset: resetForm, forgot: forgotForm };
+  const form = forms[action];
+  $$('.btn.loading').forEach(b => { b.classList.remove('loading'); b.disabled = false; });
+  if (!res.ok) { form ? showErr(form, res) : Toast.show(res.error, 'error'); return; }
+  if (action === 'login' || action === 'register' || action === 'link_confirm') { form && clearForm(form); succeed(res); }
+  else if (action === 'forgot') { Toast.show(res.message, 'success'); Modal.close($('#forgot'), true); }
+  else if (action === 'reset') { Toast.show('Password updated. Sign in with your new password.', 'success'); Modal.close($('#reset'), true); }
+}
+
+/* ---------- Login ---------- */
+const loginForm = $('#loginForm');
+loginForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateForm(loginForm)) { Toast.show('Fix the highlighted fields to continue.', 'error'); return; }
+  const ident = $('#lid').value.trim(), remember = $('#remember').checked;
+  const res = await withLoading($('.btn', loginForm), () => Bridge.call('login', { ident, password: $('#lpw').value, role: getRole(), remember }));
+  if (!res.ok) return showErr(loginForm, res);
+  remember ? store.set('eb_email', ident) : store.del('eb_email');
+  clearForm(loginForm);
+  succeed(res);
+});
+const savedId = store.get('eb_email');
+if (savedId) { $('#lid').value = savedId; $('#remember').checked = true; check($('[data-rule="identity"]', loginForm), loginForm); }
+
+/* ---------- Registration ---------- */
+const regForm = $('#regForm');
+regForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateForm(regForm)) { Toast.show('Fix the highlighted fields to continue.', 'error'); return; }
+  const payload = { name: $('#rn').value, email: $('#re').value, password: $('#rp').value, confirm: $('#rc').value, role: getRole(), terms: $('#rt').checked,
+    profile: { skills: $('#rsk').value, wants: $('#rwn').value, city: $('#rci').value, state: $('#rst').value, country: $('#rco').value } };
+  const res = await withLoading($('.btn', regForm), () => Bridge.call('register', payload));
+  if (!res.ok) return showErr(regForm, res);
+  clearForm(regForm); $('#rco').value = 'India';
+  succeed(res);
+});
+
+/* ---------- Smooth view switching ---------- */
+const Views = {
+  go(name) {
+    const from = $('.view:not([hidden])'), to = $('#' + name + 'View');
+    if (!from || from === to) return;
+    from.classList.add('leave');
+    setTimeout(() => {
+      from.hidden = true; from.classList.remove('leave'); to.hidden = false;
+      to.style.animation = 'none'; void to.offsetWidth; to.style.animation = '';
+      const f = $('input', to); f && f.focus({ preventScroll: true });
+    }, reduce ? 0 : 280);
+  }
+};
+$$('[data-view]').forEach(b => b.addEventListener('click', () => Views.go(b.dataset.view)));
+
+/* ---------- Modals ---------- */
+const Modal = {
+  open(id) {
+    const m = $('#' + id); if (m.classList.contains('open')) return;
+    m.classList.add('open'); Modal.last = document.activeElement;
+    setTimeout(() => { const t = $('input', m); t && t.focus(); }, 60);
+  },
+  close(m, quiet) {
+    if (!m.classList.contains('open')) return;
+    m.classList.remove('open');
+    if (!quiet) { if (m.id === 'link') Bridge.send('link_cancel'); if (m.id === 'reset') Bridge.send('reset_cancel'); }
+    if (m.id === 'forgot') setTimeout(() => clearForm(forgotForm), 350);
+    Modal.last && Modal.last.focus && Modal.last.focus();
+  },
+  closeAll() { $$('.modal.open').forEach(m => Modal.close(m, true)); }
+};
+$$('[data-open]').forEach(b => b.addEventListener('click', () => Modal.open(b.dataset.open)));
+$$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m || e.target.closest('[data-close]')) Modal.close(m); }));
+addEventListener('keydown', e => { if (e.key === 'Escape') $$('.modal.open').forEach(m => Modal.close(m)); });
+
+/* ---------- Forgot / reset password (single-use emailed token, handled by the server) ---------- */
+const forgotForm = $('#forgotForm'), resetForm = $('#resetForm'), linkForm = $('#linkForm');
+forgotForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateForm(forgotForm)) return;
+  const res = await withLoading($('.btn', forgotForm), () => Bridge.call('forgot', { email: $('#fe').value }));
+  if (!res.ok) return showErr(forgotForm, res);
+  Toast.show(res.message, 'success'); Modal.close($('#forgot'), true); clearForm(forgotForm);
+});
+resetForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateForm(resetForm)) return;
+  const res = await withLoading($('.btn', resetForm), () => Bridge.call('reset', { password: $('#np').value, confirm: $('#nc').value }));
+  if (!res.ok) { showErr(resetForm, res); if (res.fatal) Modal.close($('#reset'), true); return; }
+  Toast.show('Password updated. Sign in with your new password.', 'success');
+  Modal.close($('#reset'), true); clearForm(resetForm);
+  if (res.email) { $('#lid').value = res.email; $('#lpw').value = ''; check($('[data-rule="identity"]', loginForm), loginForm); }
+});
+linkForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateForm(linkForm)) return;
+  const res = await withLoading($('.btn', linkForm), () => Bridge.call('link_confirm', { password: $('#lkp').value }));
+  if (!res.ok) { showErr(linkForm, res); if (res.fatal) Modal.close($('#link'), true); return; }
+  clearForm(linkForm); succeed(res);
+});
+
+/* ---------- Button ripple ---------- */
+document.addEventListener('pointerdown', e => {
+  const b = e.target.closest('.btn,.sbtn'); if (!b) return;
+  const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height), s = document.createElement('span');
+  s.className = 'ripple'; s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  b.appendChild(s); setTimeout(() => s.remove(), 600);
+});
+
+/* ---------- Mouse spotlight + 3D card tilt ---------- */
+const spot = $('.spot'), card = $('#card');
+addEventListener('pointermove', e => { spot.style.setProperty('--mx', e.clientX + 'px'); spot.style.setProperty('--my', e.clientY + 'px'); });
+if (!reduce && matchMedia('(hover:hover)').matches) {
+  card.addEventListener('pointermove', e => {
+    const r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    card.style.transform = `rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+  });
+  card.addEventListener('pointerleave', () => card.style.transform = '');
+}
+
+/* ---------- Card cursor glow ---------- */
+card.addEventListener('pointermove', e => {
+  const r = card.getBoundingClientRect();
+  card.style.setProperty('--cx', (e.clientX - r.left) + 'px'); card.style.setProperty('--cy', (e.clientY - r.top) + 'px');
+});
+
+/* ---------- Magnetic buttons ---------- */
+if (!reduce && matchMedia('(hover:hover)').matches) {
+  $$('.btn').forEach(b => {
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .06}px,${(e.clientY - r.top - r.height / 2) * .22 - 3}px)`; });
+    b.addEventListener('pointerleave', () => b.style.transform = '');
+  });
+  // Sphere core follows the cursor slightly
+  addEventListener('pointermove', e => {
+    const core = $('.core'); core.style.setProperty('--px', ((e.clientX / innerWidth - .5) * 26) + 'px'); core.style.setProperty('--py', ((e.clientY / innerHeight - .5) * 26) + 'px');
+  });
+}
+
+/* ---------- Role switch (Student / Tutor) ---------- */
+(() => {
+  const segs = $$('.seg'), lead = $('#loginView .lead'), lbl = $('#loginForm .lbl');
+  const copy = { Student: ['Sign in to continue your journey.', 'Sign in'], Tutor: ['Sign in to your tutor dashboard.', 'Sign in as tutor'] };
+  const set = r => {
+    segs.forEach(seg => { seg.dataset.v = r; $$('button', seg).forEach(b => { const on = b.dataset.role === r; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); });
+    lead.textContent = copy[r][0]; lbl.textContent = copy[r][1]; store.set('eb_role', r);
+  };
+  segs.forEach(seg => $$('button', seg).forEach(b => b.addEventListener('click', () => set(b.dataset.role))));
+  set(store.get('eb_role') === 'Tutor' ? 'Tutor' : 'Student');
+})();
+
+/* ---------- Demo chat: alternate Telugu and Hindi ---------- */
+(() => {
+  const L = [
+    ['Quadratic equations నాకు అర్థం కావడం లేదు', 'Finding a Telugu-speaking maths tutor…', 'AR', 'Ananya R. is free now', 'Algebra, Telugu + English, 4.9 rating'],
+    ['Quadratic equations मुझे समझ नहीं आ रहे हैं', 'Finding a Hindi-speaking maths tutor…', 'RS', 'Rohan S. is free now', 'Algebra, Hindi + English, 4.8 rating']
+  ];
+  const d1 = $('.d1'); if (!d1) return; let i = 0;
+  d1.addEventListener('animationiteration', () => {
+    const l = L[i = (i + 1) % L.length];   // swaps while the chat is faded out
+    d1.textContent = l[0]; $('.d2').lastChild.textContent = l[1];
+    $('.av').textContent = l[2]; $('.match b').textContent = l[3]; $('.match small').textContent = l[4];
+  });
+})();
+
+/* ---------- Rotating tagline ---------- */
+(() => {
+  const el = $('#rot'), lines = ['Ask doubts in Telugu', 'Ask doubts in Hindi', 'Match with the right tutor', 'Swap skills with peers', 'Get smart notes after every session']; let i = 0;
+  if (reduce || !el) return;
+  setInterval(() => { el.classList.add('out'); setTimeout(() => { el.textContent = lines[i = (i + 1) % lines.length]; el.classList.remove('out'); }, 450); }, 2800);
+})();
+
+/* ---------- Caps Lock warning ---------- */
+['#lpw', '#rp', '#rc'].forEach(id => {
+  const input = $(id), note = document.createElement('div');
+  note.className = 'caps'; note.textContent = 'Caps Lock is on'; input.closest('.field').appendChild(note);
+  const upd = e => note.classList.toggle('on', !!(e.getModifierState && e.getModifierState('CapsLock')));
+  input.addEventListener('keydown', upd); input.addEventListener('keyup', upd); input.addEventListener('blur', () => note.classList.remove('on'));
+});
+
+/* ---------- Animated stat counters ---------- */
+$$('[data-count]').forEach(el => {
+  const end = +el.dataset.count, suf = el.dataset.suffix || '', t0 = performance.now() + 500;
+  const tick = t => {
+    const p = Math.min(1, Math.max(0, (t - t0) / 1400)), v = Math.round(end * (1 - Math.pow(1 - p, 3)));
+    el.textContent = v + suf; if (p < 1) requestAnimationFrame(tick);
+  };
+  reduce ? el.textContent = end + suf : requestAnimationFrame(tick);
+});
+
+/* ---------- Floating particles (canvas) with link lines + mouse repulsion ---------- */
+(() => {
+  const cv = $('#fx'), ctx = cv.getContext('2d'); let W, H, P = [], mouse = { x: -999, y: -999 };
+  const colors = ['34,230,255', '139,107,255', '47,123,255', '255,95,210'];
+  function size() {
+    const dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+    cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.min(90, Math.floor(innerWidth * innerHeight / 16000));
+    P = Array.from({ length: n }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35, r: Math.random() * 1.8 + .6, c: colors[(Math.random() * 4) | 0] }));
+  }
+  addEventListener('resize', size); addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  size();
+  function frame() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const p of P) {
+      const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+      if (d < 120) { p.x += dx / d * 1.2; p.y += dy / d * 1.2; }
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > innerWidth) p.vx *= -1; if (p.y < 0 || p.y > innerHeight) p.vy *= -1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fillStyle = `rgba(${p.c},.9)`; ctx.shadowColor = `rgb(${p.c})`; ctx.shadowBlur = 10; ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+      const d = Math.hypot(P[i].x - P[j].x, P[i].y - P[j].y);
+      if (d < 110) { ctx.strokeStyle = `rgba(${P[i].c},${.16 * (1 - d / 110)})`; ctx.beginPath(); ctx.moveTo(P[i].x, P[i].y); ctx.lineTo(P[j].x, P[j].y); ctx.stroke(); }
+    }
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+
+/* ---------- Google / GitHub sign-in (server builds the URL; browser only navigates) ---------- */
+const OAUTH_HOSTS = ['https://accounts.google.com/', 'https://github.com/'];
+let providerStatus = {};
+function showContinueLink(url, label) {
+  const old = document.getElementById('ebOauthLink'); if (old) old.remove();
+  const b = document.createElement('div');
+  b.id = 'ebOauthLink';
+  b.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99999;background:#141e34;color:#edf3ff;border:1px solid #7c6cff;border-radius:12px;padding:12px 16px;font:500 14px system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);display:flex;gap:12px;align-items:center';
+  const a = document.createElement('a');
+  a.textContent = 'Continue to ' + label; a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  a.style.cssText = 'background:#7c6cff;color:#fff;border-radius:8px;padding:8px 12px;text-decoration:none;font-weight:700';
+  b.append('Not redirected? ', a);
+  document.body.appendChild(b);
+}
+$$('.sbtn[data-provider]').forEach(btn => btn.addEventListener('click', async () => {
+  const provider = btn.dataset.provider, label = btn.textContent.trim();
+  const bid = rand(32);                                            // 64 hex chars; binds the callback to this browser
+  setCookie('eb_oauth', bid, 600, 'Lax');                          // Lax so it is sent when the provider redirects back
+  btn.classList.add('loading');
+  const res = await Bridge.call('social_start', { provider, role: getRole(), bid });
+  btn.classList.remove('loading');
+  if (!res.ok) { Toast.show(res.error || 'Could not start sign-in.', 'error'); return; }
+  if (!OAUTH_HOSTS.some(h => String(res.redirect).startsWith(h))) { Toast.show('Unexpected sign-in address. Please try again.', 'error'); return; }
+  try { (window.top || parent).location.assign(res.redirect); } catch (e) {}
+  setTimeout(() => showContinueLink(res.redirect, label), 1500);   // only visible if the browser blocked the redirect
+}));
+function markProviders(p) {
+  providerStatus = p || {};
+  $$('.sbtn[data-provider]').forEach(b => {
+    const on = providerStatus[b.dataset.provider] !== false;
+    b.classList.toggle('off', !on);
+    b.title = on ? '' : b.dataset.provider[0].toUpperCase() + b.dataset.provider.slice(1) + ' sign-in is not configured on this server yet.';
+  });
+}
+
+/* ---------- Server -> screen: runs on every Streamlit render ---------- */
+const handled = new Set();
+let resetOpen = false, linkOpen = false;
+function onArgs(a) {
+  markProviders(a.providers);
+  if (a.clear && a.clear.id && !handled.has(a.clear.id)) { handled.add(a.clear.id); (a.clear.names || []).forEach(delCookie); }   // one-shot
+  const f = a.flash;
+  if (f && f.id && !handled.has(f.id)) {                     // result of a redirect-based action (OAuth callback, reset link)
+    handled.add(f.id);
+    if (f.ok && f.user) succeed(f); else if (f.error) Toast.show(f.error, 'error'); else if (f.message) Toast.show(f.message, f.type || 'info');
+  }
+  if (a.mode === 'reset' && !resetOpen) { resetOpen = true; Modal.open('reset'); }
+  if (a.mode !== 'reset') resetOpen = false;
+  if (a.link && !linkOpen) {
+    linkOpen = true;
+    $('#linkMsg').textContent = 'An EduBridge account already exists for ' + a.link.email + '. Enter its password once to link your ' + a.link.provider + ' account.';
+    Modal.open('link');
+  }
+  if (!a.link) linkOpen = false;
+}
+Bridge.init(onArgs);
+})();
+
+</script>
+</body>
+</html>
